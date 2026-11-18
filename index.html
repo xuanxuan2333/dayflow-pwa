@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>出门计划 DayFlow · 我的日程</title>
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="vendor/leaflet.css">
+  <link rel="stylesheet" href="schedule.css">
+  <meta name="theme-color" content="#0A7CFF">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="出门计划">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="pwa.css">
+  <link rel="apple-touch-startup-image" href="splash/apple-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)">
+  <link rel="apple-touch-startup-image" href="splash/apple-1179x2556.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)">
+  <link rel="apple-touch-startup-image" href="splash/apple-1206x2622.png" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3)">
+  <link rel="apple-touch-startup-image" href="splash/apple-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)">
+  <link rel="apple-touch-startup-image" href="splash/apple-1242x2688.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)">
+  <link rel="apple-touch-startup-image" href="splash/apple-1284x2778.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)">
+  <link rel="apple-touch-startup-image" href="splash/apple-1125x2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)">
+  <link rel="apple-touch-startup-image" href="splash/apple-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)">
+  <link rel="apple-touch-startup-image" href="splash/apple-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)">
+</head>
+<body>
+  <div id="dayflow-splash" aria-hidden="true">
+    <div class="splash-inner">
+      <div class="splash-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="5.5" width="16" height="14" rx="3"/>
+          <path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/>
+          <path d="M8.5 14.5h2M13.5 14.5h2" stroke-width="2.4"/>
+        </svg>
+      </div>
+      <div class="splash-title">出门计划</div>
+    </div>
+  </div>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 9.5h17M8 3.5V6M16 3.5V6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="13" r="1" fill="currentColor"/><circle cx="12" cy="13" r="1" fill="currentColor"/><circle cx="16" cy="13" r="1" fill="currentColor"/><circle cx="8" cy="17" r="1" fill="currentColor"/><circle cx="12" cy="17" r="1" fill="currentColor"/></symbol>
+      <symbol id="i-left" viewBox="0 0 24 24"><path d="M14.5 5.5 8 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-right" viewBox="0 0 24 24"><path d="M9.5 5.5 16 12l-6.5 6.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+      <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.3V12l3.3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+      <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s6.4-5.7 6.4-11A6.4 6.4 0 0 0 5.6 10c0 5.3 6.4 11 6.4 11Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="9.8" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+      <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11.2 12 4l8 7.2V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-8.8Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+      <symbol id="i-expand" viewBox="0 0 24 24"><path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="5.2" rx="7" ry="3" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M5 5.2v6.7c0 1.7 3.1 3 7 3s7-1.3 7-3V5.2M5 11.9v6.7c0 1.7 3.1 3 7 3s7-1.3 7-3v-6.7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+      <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.7 9.2a2.4 2.4 0 0 1 4.6.9c0 1.6-2.3 1.9-2.3 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 7V5h4v2M8 7l.8 12h6.4L16 7M10 10.5v5M14 10.5v5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+      <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 11v5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><circle cx="12" cy="7.8" r="1" fill="currentColor"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m15.5 15.5 4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+      <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13.8a4 4 0 0 0 5.7 0l2.6-2.6a4 4 0 0 0-5.7-5.7l-1.4 1.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M14 10.2a4 4 0 0 0-5.7 0l-2.6 2.6a4 4 0 0 0 5.7 5.7l1.4-1.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+      <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3.5 13.7 9l5.5 1.7-5.5 1.7L12 18l-1.7-5.6L4.8 10.7 10.3 9 12 3.5Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M18.5 15.5l.7 2.2 2.2.7-2.2.7-.7 2.2-.7-2.2-2.2-.7 2.2-.7.7-2.2Z" fill="currentColor"/></symbol>
+    </defs>
+  </svg>
+
+  <header class="appbar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round">
+          <rect x="4" y="5.5" width="16" height="14" rx="3"/>
+          <path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/>
+          <path d="M8.5 14.5h2M13.5 14.5h2" stroke-width="2.4"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <div class="brand-name">出门计划</div>
+        <div class="brand-sub">DayFlow · 我的日程</div>
+      </div>
+      <span class="proto-pill">原型</span>
+    </div>
+
+    <nav class="mode-tabs" id="modeTabs">
+      <button class="mode-tab active" data-action="set-mode" data-mode="schedule">日程</button>
+      <button class="mode-tab" data-action="set-mode" data-mode="calendar">日历</button>
+    </nav>
+
+    <div class="date-nav">
+      <button class="icon-btn" data-action="day-prev" aria-label="前一天"><svg><use href="#i-left"/></svg></button>
+      <button class="today-btn" data-action="today">今天</button>
+      <button class="date-pill" data-action="month-open" aria-label="打开月历">
+        <svg><use href="#i-calendar"/></svg>
+        <span id="headerDate">11 月 21 日 周六</span>
+        <svg class="chev"><use href="#i-down"/></svg>
+      </button>
+      <button class="icon-btn" data-action="day-next" aria-label="后一天"><svg><use href="#i-right"/></svg></button>
+    </div>
+
+    <div class="app-actions">
+      <span class="save-pill" title="原型把日程存在浏览器 localStorage">
+        <svg><use href="#i-check"/></svg>
+        本地保存
+      </span>
+      <a class="crawl-entry pack-entry" href="dayflow://service/pack" title="生成手机包并推送到 GitHub，手机打开网页即自动同步">
+        <svg><use href="#i-db"/></svg>
+        <span>手机包</span>
+      </a>
+      <a class="crawl-entry course-entry" href="dayflow://service/courses" title="按地点/分类筛选美团成人课程">
+        <svg><use href="#i-spark"/></svg>
+        <span>课程体验课</span>
+      </a>
+      <button class="crawl-entry" data-action="crawl-open" title="运行采集模块">
+        <svg><use href="#i-spark"/></svg>
+        <span>开始爬取</span>
+      </button>
+      <button class="db-entry" data-action="db-open" title="查看 SQLite 数据快照">
+        <svg><use href="#i-db"/></svg>
+        <span>数据库</span>
+      </button>
+      <button class="home-chip" data-action="home-open" title="设置出发点">
+        <svg><use href="#i-home"/></svg>
+        <span id="homeChipText">北苑站</span>
+      </button>
+      <button class="icon-btn" data-action="help-open" aria-label="交互说明"><svg><use href="#i-help"/></svg></button>
+    </div>
+  </header>
+
+  <div class="weekbar">
+    <div class="weekbar-inner" id="weekbar"></div>
+  </div>
+
+  <main class="workspace" id="workspace">
+    <!-- 左：时间轴（编排主视图） -->
+    <section class="panel schedule-panel">
+      <header class="schedule-head">
+        <div class="schedule-title">
+          <div class="schedule-date" id="scheduleDate">11 月 21 日 <span>周六</span></div>
+          <div class="schedule-stats" id="scheduleStats">还没安排 · 从右侧挑活动，或点时间轴添加</div>
+        </div>
+        <div class="head-actions">
+          <button class="btn primary" data-action="manual-add">
+            <svg><use href="#i-plus"/></svg>
+            手动添加
+          </button>
+          <button class="icon-btn danger-hover" data-action="clear-schedule" aria-label="清空当天日程" title="清空当天日程">
+            <svg><use href="#i-trash"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="conflict-banner" id="conflictBanner" hidden></div>
+
+      <div class="timeline-toolbar">
+        <span class="toolbar-range">00:00–24:00</span>
+        <span class="toolbar-hint"><span class="dash-sample"></span>空档 · 点一下加自己的安排，按住往下拖可框选时间段</span>
+        <span class="toolbar-legend">
+          <span><i class="legend-activity"></i>采集活动</span>
+          <span><i class="legend-manual"></i>我的安排</span>
+        </span>
+      </div>
+
+      <div class="timeline-scroll" id="timelineScroll">
+        <div class="timeline" id="timeline">
+          <div class="time-gutter" id="timeGutter"></div>
+          <div class="timeline-body" id="timelineBody">
+            <div class="zone zone-night"></div>
+            <div class="zone zone-morning"></div>
+            <div class="zone zone-afternoon"></div>
+            <div class="zone zone-evening"></div>
+            <div class="hour-lines" id="hourLines"></div>
+            <div class="gap-bands" id="gapBands"></div>
+            <div class="block-layer" id="blockLayer"></div>
+            <div class="time-window-overlay" id="timeWindowOverlay"></div>
+            <button class="time-handle start" id="timeHandleStart" type="button" aria-label="拖动时间窗开始">
+              <span id="timeHandleStartLabel">00:00</span>
+            </button>
+            <button class="time-handle end" id="timeHandleEnd" type="button" aria-label="拖动时间窗结束">
+              <span id="timeHandleEndLabel">24:00</span>
+            </button>
+            <div class="now-line" id="nowLine" hidden><span class="now-dot"></span><span class="now-label" id="nowLabel">现在</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="schedule-foot" id="scheduleFoot"></div>
+    </section>
+
+    <!-- 右：活动池 / 地图 -->
+    <section class="panel pool-panel">
+      <div class="side-tabs" id="sideTabs">
+        <button class="side-tab active" data-action="side-view" data-view="pool">活动池</button>
+        <button class="side-tab" data-action="side-view" data-view="map">地图</button>
+      </div>
+      <div class="pool-pane" id="poolPane">
+      <header class="pool-head">
+        <div>
+          <div class="pool-title-line">
+            <h2>活动池</h2>
+            <span class="pool-count" id="poolCount">0 个</span>
+          </div>
+          <div class="pool-sub" id="poolSub">点一下加入时间表，再点一下取消</div>
+        </div>
+        <button class="btn ghost" data-action="manual-add">
+          <svg><use href="#i-plus"/></svg>
+          自己的安排
+        </button>
+      </header>
+
+      <div class="pool-controls">
+        <label class="search-box">
+          <svg><use href="#i-search"/></svg>
+          <input id="poolSearch" type="search" placeholder="搜活动 / 场地 / 地址" autocomplete="off">
+        </label>
+
+        <div class="period-tabs" id="periodTabs"></div>
+
+        <div class="time-window-row">
+          <span class="time-window-label">时间窗 <b id="timeWindowLabel">全天</b></span>
+          <button class="time-window-reset" id="timeWindowReset" data-action="time-window-reset" disabled>重置</button>
+          <label class="switch-row time-window-fits" title="活动必须完整落在时间窗内">
+            <span class="switch"><input type="checkbox" id="timeFits"><span class="slider"></span></span>
+            只看装得下
+          </label>
+        </div>
+
+        <div class="filter-selects">
+          <select id="poolCategory" aria-label="大分类"></select>
+          <select id="poolSubcategory" aria-label="细分类"></select>
+          <select id="poolSource" aria-label="来源"></select>
+          <select id="poolArea" aria-label="片区"></select>
+          <select id="poolSort" aria-label="排序">
+            <option value="time">按开始时间</option>
+            <option value="distance">按距离</option>
+            <option value="price">按价格</option>
+            <option value="duration">按时长（短→长）</option>
+          </select>
+          <button class="filter-blacklist" data-action="blacklist-open" title="编辑活动类型黑名单">黑名单 <span class="blacklist-badge">0</span></button>
+        </div>
+
+        <div class="pool-toggles">
+          <label class="switch-row">
+            <span class="switch"><input type="checkbox" id="gapOnly"><span class="slider"></span></span>
+            只看能放进空档
+          </label>
+          <label class="switch-row">
+            <span class="switch"><input type="checkbox" id="hideScheduled"><span class="slider"></span></span>
+            隐藏已排
+          </label>
+          <label class="switch-row">
+            <span class="switch"><input type="checkbox" id="bookableOnly" checked><span class="slider"></span></span>
+            只看可报名
+          </label>
+          <label class="switch-row" title="勾选时显示并蒙灰；取消勾选则隐藏">
+            <span class="switch"><input type="checkbox" id="formationUnlikely" checked><span class="slider"></span></span>
+            可能不成团
+          </label>
+        </div>
+      </div>
+
+      <div class="pool-list" id="poolList"></div>
+      </div>
+
+      <div class="map-pane" id="mapPane" hidden>
+        <div class="map-pane-head">
+          <div>
+            <div class="pool-title-line">
+              <h2>地图</h2>
+              <span class="pool-count" id="scheduleMapCount">0 个</span>
+            </div>
+            <div class="pool-sub" id="scheduleMapSub">彩色 = 片区 · 实心 = 已排 · 空心 = 未排</div>
+          </div>
+          <button class="btn ghost" data-action="manual-add">
+            <svg><use href="#i-plus"/></svg>
+            手动
+          </button>
+        </div>
+        <div class="map-canvas" id="scheduleMap"></div>
+        <div class="map-note" id="scheduleMapNote">底图：高德 · GCJ-02 · 原型无 Key</div>
+      </div>
+    </section>
+  </main>
+
+
+  <!-- ===================== 日历 tab（原版浏览视图） ===================== -->
+  <main class="calendar-workspace" id="calendarView" hidden>
+    <aside class="cal-sidebar">
+      <section class="cal-panel cal-month-panel">
+        <div class="cal-month-head">
+          <span class="cal-month-title" id="calMonthTitle">2026 年 11 月</span>
+          <div class="cal-month-nav">
+            <button class="icon-btn" data-action="cal-month-prev" aria-label="上个月"><svg><use href="#i-left"/></svg></button>
+            <button class="icon-btn" data-action="cal-month-next" aria-label="下个月"><svg><use href="#i-right"/></svg></button>
+          </div>
+        </div>
+        <div class="cal-dow"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div class="cal-month-foot" id="calMonthFoot"></div>
+      </section>
+
+      <section class="cal-panel cal-filters">
+        <div class="cal-section-title">筛选 <span class="cal-title-actions"><button class="cal-blacklist-open" data-action="blacklist-open">黑名单 <span class="blacklist-badge">0</span></button><button class="cal-reset" data-action="cal-reset">重置</button></span></div>
+        <div class="cal-filter-group">
+          <div class="cal-select-row">
+            <select class="cal-subcat-select" id="calCategory" aria-label="分类"></select>
+            <select class="cal-subcat-select" id="calSubcategory" aria-label="细分类"></select>
+          </div>
+        </div>
+        <div class="cal-filter-group">
+          <div class="cal-label">来源</div>
+          <div class="cal-chips" id="calSourceChips"></div>
+        </div>
+        <div class="cal-filter-group">
+          <label class="switch-row"><span class="switch"><input type="checkbox" id="calBookable" checked><span class="slider"></span></span>只看可报名</label>
+          <label class="switch-row" title="勾选时显示并蒙灰；取消勾选则隐藏"><span class="switch"><input type="checkbox" id="calFormationUnlikely" checked><span class="slider"></span></span>显示可能不成团</label>
+        </div>
+      </section>
+    </aside>
+
+    <section class="cal-main">
+      <div class="cal-dayhead">
+        <div>
+          <h2 id="calDayTitle">11 月 18 日 周三</h2>
+          <div class="cal-day-sub" id="calDaySub"></div>
+        </div>
+        <div class="cal-day-actions">
+          <button class="btn" data-action="cal-today">今天</button>
+          <button class="icon-btn" data-action="cal-prev-day" aria-label="前一天"><svg><use href="#i-left"/></svg></button>
+          <button class="icon-btn" data-action="cal-next-day" aria-label="后一天"><svg><use href="#i-right"/></svg></button>
+        </div>
+      </div>
+
+      <section class="cal-panel cal-timecard">
+        <div class="cal-presets" id="calPresets"></div>
+        <div class="cal-hist" id="calHist">
+          <div class="cal-hist-bars" id="calHistBars"></div>
+          <div class="cal-brush" id="calBrush">
+            <div class="cal-brush-selection" id="calBrushSelection"></div>
+            <button class="cal-brush-handle" data-edge="start" id="calBrushStartHandle" type="button" aria-label="拖动开始时间"></button>
+            <button class="cal-brush-handle" data-edge="end" id="calBrushEndHandle" type="button" aria-label="拖动结束时间"></button>
+          </div>
+        </div>
+        <div class="cal-hist-axis"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
+        <div class="cal-hist-hint"><span id="calHistReadout">拖动图表框选时间段 · 也可以点上面的预设或下拉</span></div>
+      </section>
+
+      <div class="cal-results-bar">
+        <div class="cal-result-summary" id="calResultSummary"></div>
+        <div class="cal-result-tools">
+          <select class="mini-select" id="calSort" aria-label="排序">
+            <option value="distance">按距离（近 → 远）</option>
+            <option value="time">按开始时间</option>
+            <option value="price">按价格（低 → 高）</option>
+          </select>
+          <button class="mini-select" data-action="cal-toggle-group" id="calGroupBtn">按片区合并</button>
+        </div>
+      </div>
+      <div class="cal-groups" id="calGroups"></div>
+    </section>
+
+    <aside class="cal-right">
+      <section class="cal-panel cal-map-card">
+        <div class="cal-section-title">地图 <span class="cal-count" id="calMapCount">0</span>
+          <button class="cal-map-expand" data-action="cal-map-expand" aria-label="放大地图"><svg><use href="#i-expand"/></svg>放大</button>
+        </div>
+        <div class="cal-map-canvas" id="calMap"></div>
+        <div class="cal-map-note" id="calMapNote">底图：高德 · 无 Key 原型</div>
+      </section>
+      <section class="cal-panel">
+        <div class="cal-section-title">
+          当天已排 <span class="cal-count" id="calSchedCount">0 项</span>
+          <button class="cal-go" data-action="set-mode" data-mode="schedule">去编排 →</button>
+        </div>
+        <div class="cal-sched-list" id="calSchedList"></div>
+        <button class="cal-add-manual" data-action="manual-add">＋ 手动添加自己的安排</button>
+      </section>
+      <section class="cal-panel cal-legend-panel">
+        <div class="cal-section-title">片区颜色</div>
+        <div class="cal-legend-list" id="calLegend"></div>
+        <div class="cal-legend-note">色相 = 片区；同片区里，离家越近颜色越深</div>
+      </section>
+    </aside>
+  </main>
+
+  <nav class="mobile-switch" id="mobileSwitch">
+    <button data-action="mobile-pane" data-pane="schedule" class="active">时间表 <span class="n" id="mobileScheduleCount">0</span></button>
+    <button data-action="mobile-pane" data-pane="pool">活动池 <span class="n" id="mobilePoolCount">0</span></button>
+  </nav>
+
+  <div class="scrim" id="scrim"></div>
+
+  <aside class="drawer" id="detailDrawer" aria-hidden="true">
+    <div class="drawer-head">
+      <h2 id="detailTitle">活动详情</h2>
+      <button class="drawer-close" data-action="close-layers" aria-label="关闭"><svg><use href="#i-close"/></svg></button>
+    </div>
+    <div class="drawer-body" id="detailBody"></div>
+    <div class="drawer-foot" id="detailFoot"></div>
+  </aside>
+
+  <div id="modalRoot"></div>
+  <div class="toast" id="toast"></div>
+
+  <script src="vendor/leaflet.js"></script>
+  <script>window.__DAYFLOW_BUILD='202611190521';</script>
+  <script src="boot.js"></script>
+</body>
+</html>
