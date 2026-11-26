@@ -1,0 +1,130 @@
+/* DayFlow 手机版（PWA）增量样式：导入界面 + iPhone 安全区 + 手机版入口收敛
+   桌面原型不受影响：所有规则都挂在 html.pwa-mode 下。 */
+
+.pwa-mode body {
+  box-sizing: border-box;
+  padding-bottom: env(safe-area-inset-bottom);
+  -webkit-tap-highlight-color: transparent;
+}
+.pwa-mode .appbar {
+  height: calc(56px + env(safe-area-inset-top));
+  padding-top: env(safe-area-inset-top);
+}
+.pwa-mode .workspace { padding-bottom: 0; }
+
+/* 手机上没有的东西：课程页（Mac 本地服务）、开始爬取（要在 Mac 上跑） */
+.pwa-mode .pack-entry,
+.pwa-mode [data-action="crawl-open"] { display: none !important; }
+
+/* 数据超过两天没更新 */
+.save-pill.stale { color: #b25e00; background: #fff4e5; border-color: #ffd8a8; }
+
+/* 顶栏在 390pt 宽度下会挤成两行：让文字不换行，再收掉次要入口 */
+.pwa-mode .today-btn,
+.pwa-mode .date-pill,
+.pwa-mode .mode-tab,
+.pwa-mode .crawl-entry span { white-space: nowrap; }
+@media (max-width: 520px) {
+  .pwa-mode .db-entry { display: none; }
+  .pwa-mode .appbar { padding: 0 10px; gap: 5px; }
+  .pwa-mode .today-btn { padding: 5px 6px; font-size: 11px; }
+  .pwa-mode .date-pill { font-size: 11px; padding: 6px 6px; }
+  .pwa-mode .mode-tabs { margin-left: 0; }
+}
+@media (max-width: 400px) {
+  .pwa-mode .brand { display: none; }
+  .pwa-mode .app-actions .icon-btn[aria-label="交互说明"] { display: none; }
+}
+
+/* ------------------------------------------------------------ 导入界面 */
+.pwa-gate {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px calc(20px + env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left));
+  background: radial-gradient(120% 90% at 50% 0%, #eaf2ff 0%, #f6f7f9 55%, #eef1f5 100%);
+}
+.pwa-gate[hidden] { display: none; }
+.pwa-gate-card {
+  width: 100%; max-width: 380px; margin: 0;
+  background: #fff; border: 1px solid #e6e9ef; border-radius: 22px;
+  box-shadow: 0 18px 48px rgba(16, 38, 74, 0.13);
+  padding: 30px 22px 24px; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.pwa-gate-logo {
+  width: 58px; height: 58px; border-radius: 16px;
+  background: linear-gradient(150deg, #0a7cff, #4f9bff);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 20px rgba(10, 124, 255, 0.28);
+  margin-bottom: 4px;
+}
+.pwa-gate-logo svg { width: 30px; height: 30px; }
+.pwa-gate h1 { font-size: 20px; margin: 0; letter-spacing: -0.01em; }
+.pwa-gate-sub { margin: 0; color: #6b7280; font-size: 13px; }
+.pwa-gate-btn {
+  margin-top: 12px; width: 100%;
+  display: flex; align-items: center; justify-content: center;
+  height: 48px; border-radius: 14px;
+  background: #0a7cff; color: #fff; font-size: 15px; font-weight: 600;
+  cursor: pointer; user-select: none;
+  box-shadow: 0 8px 18px rgba(10, 124, 255, 0.25);
+}
+.pwa-gate-btn:active { transform: translateY(1px); }
+.pwa-gate-hint {
+  margin: 4px 0 0; font-size: 12px; line-height: 1.65; color: #7b808a;
+}
+.pwa-gate-hint code {
+  background: #f2f4f7; border-radius: 5px; padding: 1px 5px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px;
+}
+.pwa-gate-meta {
+  margin-top: 6px; font-size: 11.5px; color: #98a0ac;
+  border-top: 1px dashed #e6e9ef; padding-top: 10px; width: 100%;
+}
+.pwa-gate-err {
+  width: 100%; margin-top: 4px; padding: 9px 11px;
+  background: #fff1f0; border: 1px solid #ffd6d3; border-radius: 10px;
+  color: #c4342b; font-size: 12px; text-align: left;
+}
+
+/* 轻提示 */
+.pwa-toast {
+  position: fixed; left: 50%; bottom: calc(86px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 10000; max-width: 78vw;
+  padding: 9px 16px; border-radius: 999px;
+  background: rgba(30, 34, 40, 0.92); color: #fff;
+  font-size: 12.5px; line-height: 1.4; text-align: center;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.22);
+  animation: pwa-toast-in 0.16s ease-out;
+}
+@keyframes pwa-toast-in { from { opacity: 0; transform: translate(-50%, 6px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+/* 启动闪屏：冷启动时先铺一层和 App 同色的底，等首屏渲染完再淡出 */
+#dayflow-splash {
+  position: fixed; inset: 0; z-index: 10001;
+  background: #f6f7f9;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity .22s ease;
+}
+#dayflow-splash.hide { opacity: 0; pointer-events: none; }
+.splash-inner { text-align: center; transform: translateY(-10px); }
+.splash-logo {
+  width: 62px; height: 62px; border-radius: 17px; margin: 0 auto 12px;
+  background: linear-gradient(150deg, #0a7cff, #4f9bff);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 10px 24px rgba(10, 124, 255, .25);
+}
+.splash-logo svg { width: 32px; height: 32px; }
+.splash-title {
+  font: 600 15px/1.4 -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+  color: #3a3f4a; letter-spacing: .03em;
+}
+
+/* 顶栏又多了一个「攻略」入口：窄屏再收一点，避免溢出 */
+@media (max-width: 430px) {
+  .pwa-mode .appbar { gap: 4px; padding: 0 8px; }
+  .pwa-mode .icon-btn { padding: 6px; }
+  .pwa-mode .date-pill { padding: 6px 5px; }
+  .pwa-mode .crawl-entry { padding: 6px 7px; }
+}

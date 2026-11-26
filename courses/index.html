@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>美团成人课程体验课 · DayFlow</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="../vendor/leaflet.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <a class="back" href="../index.html" title="返回 DayFlow">←</a>
+      <div>
+        <h1>成人课程与体验</h1>
+        <p class="sub">美团 / 大众点评 · 课程与新奇体验，按地点/分类筛选，电话可拨打</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <span class="stat" id="statLine">加载中…</span>
+      <button class="btn ghost" id="refreshBtn" type="button">刷新</button>
+      <button class="btn primary" id="collectBtn" type="button" disabled>采集这个地点</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel filters">
+      <details class="filter-group" data-fg="main">
+        <summary>
+          <span class="fg-title">地点 / 半径 / 搜索 / 排序</span>
+          <span class="fg-sub" data-fg-sub="main"></span>
+        </summary>
+        <div class="fg-body">
+          <div class="filter-row main-row">
+        <label class="field loc-field">
+          <span class="field-label">地点</span>
+          <span class="loc-wrap">
+            <input id="locInput" type="text" list="anchorList" placeholder="输入地点，如：北苑 / 望京 / 39.90,116.64" autocomplete="off">
+            <datalist id="anchorList"></datalist>
+            <button class="btn small primary" id="locateBtn" type="button">定位</button>
+          </span>
+        </label>
+        <label class="field">
+          <span class="field-label">半径</span>
+          <select id="radiusSelect">
+            <option value="3">3 km</option>
+            <option value="5">5 km</option>
+            <option value="10" selected>10 km</option>
+            <option value="20">20 km</option>
+            <option value="30">30 km</option>
+            <option value="50">50 km</option>
+          </select>
+        </label>
+        <label class="field grow">
+          <span class="field-label">搜索</span>
+          <input id="qInput" type="search" placeholder="课程名 / 门店 / 地址">
+        </label>
+        <label class="field">
+          <span class="field-label">排序</span>
+          <select id="sortSelect">
+            <option value="distance">离我最近</option>
+            <option value="price">价格最低</option>
+            <option value="rating">评分最高</option>
+          </select>
+        </label>
+        <label class="field check-field" title="采集时用 DeepSeek 补课程介绍/判模糊人群">
+          <input id="llmCheck" type="checkbox" checked>
+          <span>LLM 补介绍</span>
+        </label>
+        <button class="btn ghost small" id="resetBtn" type="button">重置</button>
+      </div>
+        </div>
+      </details>
+
+      <div class="active-loc" id="activeLoc" hidden>
+        <span class="pin">📍</span>
+        <b id="activeLocName"></b>
+        <span id="activeLocAddr"></span>
+        <button class="linkish" id="clearLocBtn" type="button">清除</button>
+      </div>
+
+      <details class="filter-group" data-fg="region">
+        <summary>
+          <span class="fg-title">地区</span>
+          <span class="fg-sub" data-fg-sub="region"></span>
+        </summary>
+        <div class="fg-body">
+          <div class="region-block">
+        <div class="chips" id="regionChips"></div>
+      </div>
+        </div>
+      </details>
+
+      <details class="filter-group" data-fg="category">
+        <summary>
+          <span class="fg-title">分类</span>
+          <span class="fg-sub" data-fg-sub="category"></span>
+        </summary>
+        <div class="fg-body">
+          <div class="chip-block">
+        <div class="chips" id="categoryChips"></div>
+      </div>
+        </div>
+      </details>
+
+      <details class="filter-group" data-fg="more">
+        <summary>
+          <span class="fg-title">人群 / 价格</span>
+          <span class="fg-sub" data-fg-sub="more"></span>
+        </summary>
+        <div class="fg-body">
+          <div class="chip-block">
+        <div class="chip-label">人群</div>
+        <div class="chips" id="audienceChips">
+          <button class="chip active" data-audience="all">全部</button>
+          <button class="chip" data-audience="adult">仅成人</button>
+          <button class="chip" data-audience="mixed">成人/青少年混合</button>
+        </div>
+        <div class="chip-label price-label">价格</div>
+        <div class="chips" id="priceChips">
+          <button class="chip active" data-price="">不限</button>
+          <button class="chip" data-price="0-50">¥50 内</button>
+          <button class="chip" data-price="50-150">¥50–150</button>
+          <button class="chip" data-price="150-300">¥150–300</button>
+          <button class="chip" data-price="300-">¥300+</button>
+        </div>
+        <label class="field check-field inline-check" title="默认隐藏没有电话的课程；勾上才一起显示">
+          <input id="noPhoneCheck" type="checkbox">
+          <span>没有电话</span>
+        </label>
+      </div>
+        </div>
+      </details>
+    </section>
+
+    <div class="content-grid">
+      <div class="results-col">
+        <section class="result-head">
+          <div id="resultCount">—</div>
+          <div class="hint" id="resultHint"></div>
+        </section>
+
+        <section id="grid" class="grid" aria-live="polite"></section>
+        <section id="empty" class="empty" hidden>
+          <div class="empty-icon">🔍</div>
+          <h2>这个范围里没有符合条件的课</h2>
+          <p>试试放大半径、换一个地点，或去掉分类/价格筛选。</p>
+          <button class="btn primary" id="emptyCollectBtn" type="button">采集这个地点附近</button>
+        </section>
+      </div>
+
+      <aside class="map-col">
+        <div class="map-card">
+          <div class="map-head">
+            <b>地图</b>
+            <span id="mapLegend">点会跟随筛选变化</span>
+          </div>
+          <div id="map"></div>
+          <div class="map-note" id="mapNote">底图：高德栅格 · 点击圆点看课程</div>
+        </div>
+      </aside>
+    </div>
+
+    <footer class="foot">
+      <span>数据来自美团/大众点评公开页面 + 高德补全；价格与电话可能有变化，去店前建议先电话确认。</span>
+      <span id="lastCrawl"></span>
+    </footer>
+  </main>
+
+  <div class="toast" id="toast" hidden></div>
+  <script src="../vendor/leaflet.js"></script>
+  <script src="./courses-data.js"></script>
+  <script src="./static-api.js"></script>
+  <script src="./app.js"></script>
+
+  <script>
+    /* 筛选分组折叠：记住展开状态 + 折叠时在标题右侧显示当前选择 */
+    (() => {
+      const KEY = 'courses.filterGroups.v1';
+      let saved = {};
+      try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { saved = {}; }
+      for (const g of document.querySelectorAll('.filter-group')) {
+        const k = g.dataset.fg;
+        if (k && k in saved) g.open = Boolean(saved[k]);
+        g.addEventListener('toggle', () => {
+          try { saved[k] = g.open; localStorage.setItem(KEY, JSON.stringify(saved)); } catch { /* ignore */ }
+        });
+      }
+      const label = (el) => (el ? el.textContent.trim() : '');
+      const active = (root) => {
+        const chip = root && root.querySelector('.chip.active');
+        return chip ? chip.textContent.replace(/\s*\d+$/, '').trim() : '';
+      };
+      function hint() {
+        const set = (k, v) => {
+          const el = document.querySelector(`[data-fg-sub="${k}"]`);
+          if (el) el.textContent = v || '';
+        };
+        const locBox = document.querySelector('#activeLoc');
+        const locName = locBox && !locBox.hidden ? label(document.querySelector('#activeLocName')) : '';
+        const radius = document.querySelector('#radiusSelect');
+        const q = (document.querySelector('#qInput') && document.querySelector('#qInput').value.trim()) || '';
+        const sort = document.querySelector('#sortSelect');
+        const sortLabel = sort ? label(sort.selectedOptions[0]) : '';
+        set('main', [locName ? `${locName} ${radius ? radius.value : ''}km` : '', q ? `「${q}」` : '', sortLabel].filter(Boolean).join(' · '));
+
+        const region = active(document.querySelector('#regionChips'));
+        set('region', region && region !== '全部' ? region : '');
+        const cat = active(document.querySelector('#categoryChips'));
+        set('category', cat && cat !== '全部' ? cat : '');
+        const aud = active(document.querySelector('#audienceChips'));
+        const price = active(document.querySelector('#priceChips'));
+        set('more', [aud && aud !== '全部' ? aud : '', price && price !== '不限' ? price : ''].filter(Boolean).join(' · '));
+      }
+      document.addEventListener('input', hint);
+      document.addEventListener('change', hint);
+      document.addEventListener('click', () => setTimeout(hint, 0));
+      setTimeout(hint, 400);
+      setTimeout(hint, 1200);
+    })();
+  </script>
+
+</body>
+</html>
